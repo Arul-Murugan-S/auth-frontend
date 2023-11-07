@@ -3,6 +3,9 @@ import {Container, Form, Button} from "react-bootstrap";
 import '../styles/Login.css';
 import {Link, useNavigate} from "react-router-dom";
 
+import axios from 'axios';
+import API_URL from '../../config/global';
+
 const Login = () => {
 
 const [formData, setFormData] = useState({
@@ -10,14 +13,30 @@ const [formData, setFormData] = useState({
     password:""
 })
 
+const navigate = useNavigate();
+
 const handleChange = (e) => {
     const {name, value} = e.target;
     setFormData({...formData, [name]: value});
     // setFormData((prevValue) => ({...prevValue, [name]: value}));
 }
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    // console.log(formData);
+    try {
+        const response = await axios.post(`${API_URL}/login`, formData);
+        console.log(response);
+        if (response.data === "Invalid user name and password!") {
+            alert("Invalid user name or password!")
+        } else if (response.data === "Server Busy!") {
+            alert("Verify your email id!");
+        } else if (response?.status) {
+            localStorage.setItem("userInfo", JSON.stringify(response.data));
+            navigate('/home');
+        }
+    } catch (e)  {
+        console.log(e);
+    }
 }
 
   return (
